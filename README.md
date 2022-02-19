@@ -1,8 +1,4 @@
 # a2z_qr - QR code Scanner<br/>
-#� �Q�R�S�c�a�n�n�e�r�
-�
-�
-<br/>
 
 ## Just Getting Started
 
