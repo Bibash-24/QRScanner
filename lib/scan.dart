@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutter/services.dart';
 
 class Scan extends StatefulWidget {
   @override
@@ -7,7 +9,35 @@ class Scan extends StatefulWidget {
 }
 
 class _ScanState extends State<Scan> {
-  String qrResult = "Not Yet Scanned";
+  String result = "press the camera to start the scan !";
+
+  Future _scanQR() async {
+    try {
+      ScanResult qrScanResult = await BarcodeScanner.scan();
+      String qrResult = qrScanResult.rawContent;
+      setState(() {
+        result = qrResult;
+      });
+    } on PlatformException catch (ex) {
+      if (ex.code == BarcodeScanner.cameraAccessDenied) {
+        setState(() {
+          result = "Camera was denied";
+        });
+      } else {
+        setState(() {
+          result = "Unknown Error $ex";
+        });
+      }
+    } on FormatException {
+      setState(() {
+        result = "You pressed the back button before scanning anything";
+      });
+    } catch (ex) {
+      setState(() {
+        result = "Unknown Error $ex";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +57,8 @@ class _ScanState extends State<Scan> {
               style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            // Expanded(
-            //   child: Divider(
-            //     color: Colors.black,
-            //     // height: 0.1,
-            //   ),
-            // ),
             Text(
-              qrResult,
+              result,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18.0),
             ),
@@ -42,14 +66,10 @@ class _ScanState extends State<Scan> {
               height: 20.0,
             ),
             FloatingActionButton.extended(
-                icon: Icon(Icons.camera_alt),
-                label: Text("Scan"),
-                onPressed: () async {
-                  String a2zScan = (await BarcodeScanner.scan()) as String;
-                  setState(() {
-                    qrResult = a2zScan;
-                  });
-                }),
+              icon: Icon(Icons.camera_alt),
+              label: Text("Scan"),
+              onPressed: _scanQR,
+            ),
           ],
         ),
       ),
