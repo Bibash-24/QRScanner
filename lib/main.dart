@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:a2z_qr/utilities/constants.dart';
+import 'package:a2z_qr/utilities/custom_text.dart';
 import 'package:flutter/material.dart';
 import 'package:a2z_qr/homepage.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MaterialApp(
@@ -15,9 +19,81 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  String eventsID;
+  String pinCode;
+
+  signIn(eventsID, pinCode) async {
+    final Map<String, dynamic> signInData = {
+      eventsID: "string",
+      pinCode: "string"
+    };
+
+    var response = await http.post(
+      Uri.parse("https://api.a2zticketing.com/api/pinCode"),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: json.encode(signInData),
+    );
+
+    var jsonResponse = json.decode(response.body);
+    final Map<String, dynamic> responseData = json.decode(jsonResponse);
+
+    if (responseData['status'] != 'error') {
+      // setState(() {
+      //   _isLoading = false;
+      // });
+
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Homepage()));
+      AlertDialog alert = AlertDialog(
+        title: CustomText(
+          text: "Success",
+          size: 15,
+        ),
+        content: CustomText(
+          text: responseData['result'],
+          size: 12,
+        ),
+      );
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    } else {
+      // setState(() {
+      //   _isLoading = false;
+      // });
+      AlertDialog alert = AlertDialog(
+        title: CustomText(
+          text: "Error",
+          size: 15,
+        ),
+        content: CustomText(
+          text: responseData['result'],
+          size: 12,
+        ),
+      );
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    }
+  }
+
   bool _remeberMe = false;
 
-  Widget _buildEmailForm() {
+  TextEditingController eventIDcontroller = new TextEditingController();
+  TextEditingController eventPINcontroller = new TextEditingController();
+
+  Widget _buildEventIDForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -31,7 +107,7 @@ class _MyAppState extends State<MyApp> {
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextField(
-            keyboardType: TextInputType.emailAddress,
+            controller: eventIDcontroller,
             style: TextStyle(
               color: Colors.white,
               fontFamily: 'OpenSans',
@@ -52,7 +128,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _buildPinForm() {
+  Widget _buildEventPinForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -66,7 +142,7 @@ class _MyAppState extends State<MyApp> {
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextField(
-            // obscureText: true,
+            controller: eventPINcontroller,
             style: TextStyle(
               color: Colors.white,
               fontFamily: 'OpenSans',
@@ -134,12 +210,15 @@ class _MyAppState extends State<MyApp> {
       width: double.infinity,
       child: RaisedButton(
         elevation: 5.0,
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Homepage(),
-          ),
-        ),
+        onPressed: () {
+          signIn(eventsID, pinCode);
+        },
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => Homepage(),
+        //   ),
+        // ),
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
@@ -204,9 +283,9 @@ class _MyAppState extends State<MyApp> {
                             fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 30.0),
-                      _buildEmailForm(),
+                      _buildEventIDForm(),
                       SizedBox(height: 30.0),
-                      _buildPinForm(),
+                      _buildEventPinForm(),
                       _buildForgotPasswordBtn(),
                       _buildRememberMeCheckBox(),
                       _buildLoginBtn(),
