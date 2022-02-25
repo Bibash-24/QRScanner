@@ -209,7 +209,7 @@ class _MyAppState extends State<MyApp> {
                       _buildPinForm(),
                       _buildForgotPasswordBtn(),
                       _buildRememberMeCheckBox(),
-                      _buildLoginBtn(),
+                      // _buildLoginBtn(),
                       RichText(
                         text: TextSpan(children: [
                           TextSpan(
