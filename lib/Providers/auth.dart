@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:a2z_qr/utilities/user_preferance.dart';
-import 'package:a2z_qr/utilities/users.dart';
+import 'package:a2z_qr/Utils/user_preferance.dart';
+import 'package:a2z_qr/Model/users.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
@@ -28,8 +28,8 @@ class AuthProvider with ChangeNotifier {
     var result;
 
     final Map<String, dynamic> loginData = {
-      'eventsID': eventsId,
-      'pinCode': pinCode,
+      'eventsID': 'EVE-20007',
+      'pinCode': '313922',
     };
 
     _loggedInStatus = Status.Authenticating;
@@ -44,9 +44,9 @@ class AuthProvider with ChangeNotifier {
         body: json.encode(loginData));
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
+      final responseData = jsonDecode(response.body);
 
-      var userData = responseData;
+      var userData = json.decode(responseData);
 
       User authUser = User.fromJson(userData);
 
