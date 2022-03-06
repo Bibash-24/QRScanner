@@ -1,4 +1,5 @@
 import 'package:a2z_qr/scan.dart';
+import 'package:a2z_qr/Utils/user_preferance.dart';
 import 'package:flutter/material.dart';
 
 class Homepage extends StatefulWidget {
@@ -13,6 +14,18 @@ class _HomepageState extends State<Homepage> {
       appBar: AppBar(
         title: Text("A2z Ticketing"),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              UserPreferences().removeUser();
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(50.0),
