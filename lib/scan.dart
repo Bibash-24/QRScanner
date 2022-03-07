@@ -22,69 +22,65 @@ class _ScanState extends State<Scan> {
   String ticketNumberID;
   String pinCode;
 
-  // Future _scanQR() async {
-  //   try {
-  //     ScanResult qrScanResult = await BarcodeScanner.scan();
-  //     String qrResult = qrScanResult.rawContent;
-  //     setState(() {
-  //       result = qrResult;
-  //     });
-  //     sendQRData(ticketNumberID, pinCode);
-  //   } on PlatformException catch (ex) {
-  //     if (ex.code == BarcodeScanner.cameraAccessDenied) {
-  //       setState(() {
-  //         result = "Camera was denied";
-  //       });
-  //     } else {
-  //       setState(() {
-  //         result = "Unknown Error $ex";
-  //       });
-  //     }
-  //   } on FormatException {
-  //     setState(() {
-  //       result = "You pressed the back button before scanning anything";
-  //     });
-  //   } catch (ex) {
-  //     setState(() {
-  //       result = "Unknown Error $ex";
-  //     });
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<UserProvider>(context).user;
 
     // Function to post QR data to Api
     Future<void> sendQRData(ticketNumberID, pinCode) async {
-      Map<String, dynamic> jsonData = {
-        "mode": "checkedIn",
-        "data": {
-          "ticketNumberID": 'E015-NOR-1',
-          "pinCode": '313922',
-          "isDelevered": 0,
-          "isUsed": 0,
-          "isActive": 0
+      try {
+        ScanResult qrScanResult = await BarcodeScanner.scan();
+        String qrResult = qrScanResult.rawContent;
+        setState(() {
+          result = qrResult;
+        });
+        Map<String, dynamic> jsonData = {
+          "mode": "checkedIn",
+          "data": {
+            "ticketNumberID": qrResult,
+            "pinCode": user.pin,
+            "isDelevered": 0,
+            "isUsed": 0,
+            "isActive": 0
+          }
+        };
+
+        var response = await http.post(
+            Uri.parse("https://api.a2zticketing.com/api/checkIn"),
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "Authorization": user.token,
+            },
+            body: json.encode(jsonData));
+        // encoding: Encoding.getByName("utf-8"));
+
+        var jsonResponse = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("${jsonDecode(jsonResponse)['result']}")));
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text("Error sending Data")));
         }
-      };
-
-      var response =
-          await http.post(Uri.parse("https://api.a2zticketing.com/api/checkIn"),
-              headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": user.token,
-              },
-              body: json.encode(jsonData));
-      // encoding: Encoding.getByName("utf-8"));
-
-      // var jsonResponse = json.decode(response.body);
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Data sent Sucessfully")));
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Error sending Data")));
+      } on PlatformException catch (ex) {
+        if (ex.code == BarcodeScanner.cameraAccessDenied) {
+          setState(() {
+            result = "Camera was denied";
+          });
+        } else {
+          setState(() {
+            result = "Unknown Error $ex";
+          });
+        }
+      } on FormatException {
+        setState(() {
+          result = "You pressed the back button before scanning anything";
+        });
+      } catch (ex) {
+        setState(() {
+          result = "Unknown Error $ex";
+        });
       }
     }
 
