@@ -30,27 +30,29 @@ class _LoginPageState extends State<LoginPage> {
       if (eventController.text.isNotEmpty &&
           pinCodeController.text.isNotEmpty) {
         final successfulMessage = auth.login(eventsId, pinCode);
-        successfulMessage.then(
-          (response) {
-            if (response['status']) {
-              User user = response['user'];
-              Provider.of<UserProvider>(context, listen: false).setUser(user);
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text("Login Sucessful")));
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Homepage()));
-              // return Homepage();
-            } else if (response['error']) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text("Invalid Credentials")));
-              // return 0;
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Blank Field Not Allowed")));
-              // return 0;
-            }
-          },
-        );
+        successfulMessage.then((response) {
+          if (response['status']) {
+            User user = response['user'];
+            Provider.of<UserProvider>(context, listen: false).setUser(user);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Login Sucessful"),
+              backgroundColor: Colors.greenAccent,
+            ));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Homepage()));
+            // return Homepage();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Invalid Credentials"),
+              backgroundColor: Colors.redAccent,
+            ));
+            // return 0;
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Blank Field Not Allowed")));
+        // return 0;
       }
     }
 
