@@ -28,8 +28,10 @@ class AuthProvider with ChangeNotifier {
     var result;
 
     final Map<String, dynamic> loginData = {
-      'eventsID': 'EVE-20007',
-      'pinCode': '313922',
+      'eventsID': eventsId,
+      // 'EVE-20007'
+      'pinCode': pinCode,
+      // '313922'
     };
 
     _loggedInStatus = Status.Authenticating;
