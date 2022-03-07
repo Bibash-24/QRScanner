@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:a2z_qr/Model/users.dart';
 import 'package:a2z_qr/Providers/user_provider.dart';
+import 'package:a2z_qr/Utils/user_preferance.dart';
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
@@ -59,7 +60,7 @@ class _ScanState extends State<Scan> {
       Map<String, dynamic> jsonData = {
         "mode": "checkedIn",
         "data": {
-          "ticketNumberID": 'E015-NOR-6',
+          "ticketNumberID": 'E015-NOR-1',
           "pinCode": '313922',
           "isDelevered": 0,
           "isUsed": 0,
@@ -91,6 +92,18 @@ class _ScanState extends State<Scan> {
       appBar: AppBar(
         title: Text("Scan QR"),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              UserPreferences().removeUser();
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
       ),
       body: Container(
         padding: EdgeInsets.all(50.0),
